@@ -8,6 +8,7 @@ class SpecificDatabaseManager(models.Manager):
 
     def __init__(self, database, *args, **kwargs):
         self.database = database
+        self.use_for_related_fields = True
         super(SpecificDatabaseManager, self).__init__(*args, **kwargs)
 
     def get_query_set(self):
