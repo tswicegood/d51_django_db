@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection, models
 from django.db.models import sql, query
+from d51_django_db import create_custom_db_connection
 
 class SpecificDatabaseManager(models.Manager):
     _connection = None
@@ -22,16 +23,7 @@ class SpecificDatabaseManager(models.Manager):
             if not hasattr(settings, 'DATABASES'):
                 raise ImproperlyConfigured('Missing the DATABASES configuration value')
 
-            self._connection = self.create_custom_db()
+            self._connection = create_custom_db_connection(self.database)
         return self._connection
-
-    def create_custom_db(self):
-        if not settings.DATABASES.has_key(self.database):
-            raise ImproperlyConfigured('Unable to locate configuration for %s' % self.database)
-
-        database_conf = settings.DATABASES[self.database]
-        to_import = 'django.db.backends.' + database_conf['DATABASE_ENGINE'] + '.base'
-        backend = __import__(to_import, {}, {}, ['base'])
-        return backend.DatabaseWrapper(database_conf)
 
 
